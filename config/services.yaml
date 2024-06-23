@@ -20,5 +20,20 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    Symfony\Component\Serializer\SerializerInterface:
+      class: Symfony\Component\Serializer\Serializer
+      public: true
+      arguments:
+        - [ '@serializer.normalizer.object', '@serializer.normalizer.array' ]
+        - [ '@serializer.encoder.json' ]
+
+    serializer.normalizer.object:
+      class: Symfony\Component\Serializer\Normalizer\ObjectNormalizer
+
+    serializer.normalizer.array:
+      class: Symfony\Component\Serializer\Normalizer\ArrayDenormalizer
+
+    serializer.encoder.json:
+      class: Symfony\Component\Serializer\Encoder\JsonEncoder
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

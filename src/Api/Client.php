@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Api;
 
 use App\Model\InpostClientInterface;
+use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Client as HttpClient;
 
 class Client implements InpostClientInterface
 {
+    public const PER_PAGE = 10;
+    public const POINT_TYPE = 'parcel_locker';
     public HttpClient $httpClient;
     public string $baseUrl;
-    public int $organizationId;
+    public string $organizationId;
     public string $token;
 
     public function setAuth(?array $auth): void
@@ -23,10 +26,10 @@ class Client implements InpostClientInterface
 
     public function setBaseUrl(bool $isProduction): void
     {
-        if ($isProduction) {
+        if (true) {
             $this->baseUrl = 'https://api-shipx-pl.easypack24.net/v1/';
         } else {
-            $this->baseUrl = 'https://sandbox-api-shipx-pl.easypack24.net/v1/';
+            $this->baseUrl = 'https://sandbox-api-shipx-pl.easypack24.net/v1/points?city=Kozy';
         }
     }
 
@@ -35,8 +38,55 @@ class Client implements InpostClientInterface
         $this->httpClient = $httpClient;
     }
 
-    public function getPoints(array $options): ResponseInterface
+    public function getPointsByCity(string $city, array $options = []): ResponseInterface
     {
-        // TODO: Implement getPoints() method.
+        $requestData = \array_merge(
+            [
+                'city' => $city,
+                'per_page' => self::PER_PAGE,
+                'type' => self::POINT_TYPE
+            ],
+            $options
+        );
+
+        return $this->getResponse('points', $requestData);
+    }
+
+    private function getResponse(string $url = '', array $requestData = [], bool $authorization = false): ResponseInterface
+    {
+        $fullUrl = $this->baseUrl . $url;
+        $options = [
+            'query' => $requestData,
+            'verify' => true,
+        ];
+
+        if ($authorization) {
+            $options['headers'] = $this->getAuthorization();
+        }
+
+        try {
+            $response = $this->httpClient->get($fullUrl, $options);
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
+        }
+
+        return $response;
+    }
+
+    private function getAuthorization(): array
+    {
+        return [
+            'Authorization' => 'Bearer ' . $this->getToken(),
+        ];
+    }
+
+    private function getOrganizationId(): string
+    {
+        return $this->organizationId;
+    }
+
+    private function getToken(): string
+    {
+        return $this->token;
     }
 }
