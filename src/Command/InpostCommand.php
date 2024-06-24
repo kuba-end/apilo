@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 #[AsCommand(
     name: 'app:inpost-points',
-    description: 'Calculate loan fee',
+    description: 'Get Inpost points',
     hidden: false,
 )]
 class InpostCommand extends Command
@@ -31,7 +31,7 @@ class InpostCommand extends Command
     protected function configure(): void
     {
         parent::configure();
-        $this->setDescription('Allows calculate loan fee for given amount and term');
+        $this->setDescription('Fetch Inpost points for given city');
         $this->addArgument('city', InputArgument::REQUIRED,'Provide city to obtain parcel lockers');
     }
 
