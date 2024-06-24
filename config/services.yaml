@@ -10,6 +10,7 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: true
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -20,20 +21,22 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    Symfony\Component\Serializer\SerializerInterface:
-      class: Symfony\Component\Serializer\Serializer
-      public: true
-      arguments:
-        - [ '@serializer.normalizer.object', '@serializer.normalizer.array' ]
-        - [ '@serializer.encoder.json' ]
+    App\Service\CityTransformatorChain:
+        arguments:
+            $validators: !tagged_iterator { tag: !php/const App\Service\CityTransformatorChain::TAG }
 
-    serializer.normalizer.object:
-      class: Symfony\Component\Serializer\Normalizer\ObjectNormalizer
+    App\Service\SinglePhraseCityValidator:
+        tags:
+            - { name: !php/const App\Service\CityTransformatorChain::TAG}
 
-    serializer.normalizer.array:
-      class: Symfony\Component\Serializer\Normalizer\ArrayDenormalizer
+    App\Service\DoublePhraseCityValidator:
+        tags:
+            - { name: !php/const App\Service\CityTransformatorChain::TAG}
 
-    serializer.encoder.json:
-      class: Symfony\Component\Serializer\Encoder\JsonEncoder
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Service\DashPhraseCityValidator:
+        tags:
+            - { name: !php/const App\Service\CityTransformatorChain::TAG }
+
+    App\Service\TriplePhraseCityValidator:
+        tags:
+            - { name: !php/const App\Service\CityTransformatorChain::TAG }

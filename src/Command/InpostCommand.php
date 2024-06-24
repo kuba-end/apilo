@@ -10,7 +10,6 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -38,12 +37,16 @@ class InpostCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $isProduction = $input->getOption('env') === 'prod';
         $city = $input->getArgument('city');
-        $client = $this->clientFactory->create($isProduction);
-        $response = $client->getPointsByCity($city);
+        $client = $this->clientFactory->create();
+        $response = $client->getPointsByCity($city, []);
         $jsonData = $response->getBody()->getContents();
         $pointsDTOs = $this->transformer->transformFromJson($jsonData);
+        if ([] === $pointsDTOs) {
+            $output->writeln('Points not found. Make sure city name you provide is correct');
+
+            return self::FAILURE;
+        }
         dump($pointsDTOs);
 
         return self::SUCCESS;

@@ -15,18 +15,16 @@ class Client implements InpostClientInterface
     public const POINT_TYPE = 'parcel_locker';
     public HttpClient $httpClient;
     public string $baseUrl;
-    public string $organizationId;
     public string $token;
 
     public function setAuth(?array $auth): void
     {
-        $this->organizationId = $auth['companyId'];
         $this->token = $auth['password'];
     }
 
     public function setBaseUrl(bool $isProduction): void
     {
-        if (true) {
+        if ($isProduction) {
             $this->baseUrl = 'https://api-shipx-pl.easypack24.net/v1/';
         } else {
             $this->baseUrl = 'https://sandbox-api-shipx-pl.easypack24.net/v1/points?city=Kozy';
@@ -43,6 +41,7 @@ class Client implements InpostClientInterface
         $requestData = \array_merge(
             [
                 'city' => $city,
+                'post_code' => isset($options['post_code']) ?: null,
                 'per_page' => self::PER_PAGE,
                 'type' => self::POINT_TYPE
             ],
@@ -78,11 +77,6 @@ class Client implements InpostClientInterface
         return [
             'Authorization' => 'Bearer ' . $this->getToken(),
         ];
-    }
-
-    private function getOrganizationId(): string
-    {
-        return $this->organizationId;
     }
 
     private function getToken(): string

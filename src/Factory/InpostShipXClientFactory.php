@@ -10,7 +10,7 @@ use GuzzleHttp\Client as HttpClient;
 
 class InpostShipXClientFactory
 {
-    public function create(bool $isProduction, array $auth = null): InpostClientInterface
+    public function create(bool $isProduction = true, array $auth = null): InpostClientInterface
     {
         $client = new Client();
         $client->setBaseUrl($isProduction);

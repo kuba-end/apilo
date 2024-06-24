@@ -17,9 +17,17 @@ class PointTransformer
     {
         $data = json_decode($jsonData, true);
         $items = $data['items'] ?? [];
+        $meta = $data['meta'] ?? [];
         $points = [];
+
         foreach ($items as $item) {
-            $points[] = $this->serializer->deserialize(json_encode($item), 'App\DTO\PointDTO', 'json');
+            /** @var PointDTO $pointDTO */
+            $pointDTO = $this->serializer->deserialize(json_encode($item), PointDTO::class, 'json');
+            $pointDTO->setCount($meta['count']);
+            $pointDTO->setPage($meta['page']);
+            $pointDTO->setTotalPages($meta['total_pages']);
+
+            $points[] = $pointDTO;
         }
 
         return $points;
