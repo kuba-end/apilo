@@ -13,8 +13,13 @@ class QueryPointDTO
         #[Assert\Length(min: 3, max: 64, )]
         private string $city,
 
-        #[Assert\Optional]
-        #[Assert\Regex('/^\d{2}-\d{3}$/', message: "Invalid postal code format")]
+        /**
+         * @Assert\Optional
+         * @Assert\Regex(
+         *     pattern="/^\d{2}-\d{3}$/",
+         *     message="Invalid postal code format"
+         * )
+         */
         private ?string $postalCode,
     ) {
     }
